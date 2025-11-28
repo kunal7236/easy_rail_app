@@ -60,14 +60,22 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       padding: const EdgeInsets.all(16.0),
       children: [
         // This is your '.booking-container'
-        Card(
-          elevation: 2.0,
-          color: const Color(0xFFCCE5EB),
-          shape: RoundedRectangleBorder(
+        Container(
+          padding: const EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: const Color(0xFFCCE5EB),
             borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(color: AppTheme.accentDark, width: 2.0),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black45,
+                blurRadius: 15,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(0.0),
             child: Column(
               children: [
                 _buildStationAutocomplete(
