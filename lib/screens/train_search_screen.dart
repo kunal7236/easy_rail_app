@@ -195,29 +195,36 @@ class _TrainSearchScreenState extends State<TrainSearchScreen> {
   }
 
   // Replicates '#train-table'
-Widget _buildTrainDetailsCard(TrainDetails details) {
-    // --- FORMAT RUNNING DAYS ---
-    final List<String> weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  Widget _buildTrainDetailsCard(TrainDetails details) {
+    // --- FORMAT RUNNING DAYS (only show days when train runs) ---
+    final List<String> weekdays = [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun",
+    ];
     String runningDaysFormatted = '';
     if (details.runningDays.length == 7) {
-      runningDaysFormatted = details.runningDays
-          .split('')
-          .asMap() // Get index
-          .map((index, bit) => MapEntry(
-              index, bit == '1' ? weekdays[index] : '_')) // Map 1/0 to Day/_
-          .values
-          .join(' '); // Join with spaces
+      final List<String> runningDaysList = [];
+      for (int i = 0; i < 7; i++) {
+        if (details.runningDays[i] == '1') {
+          runningDaysList.add(weekdays[i]);
+        }
+      }
+      runningDaysFormatted = runningDaysList.isNotEmpty
+          ? runningDaysList.join(', ')
+          : 'Not available';
     } else {
       runningDaysFormatted = 'N/A'; // Fallback
     }
-    
 
     return Card(
       elevation: 2.0,
       color: AppTheme.accent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -225,42 +232,55 @@ Widget _buildTrainDetailsCard(TrainDetails details) {
             // Train Name (Number)
             Text(
               '${details.trainName} (${details.trainNo})',
-              style: AppTheme.heading.copyWith(fontSize: 20, decoration: TextDecoration.none),
+              style: AppTheme.heading.copyWith(
+                fontSize: 20,
+                decoration: TextDecoration.none,
+              ),
               textAlign: TextAlign.center,
             ),
             const Divider(height: 15, thickness: 1), // Add a divider
 
+            _buildDetailRow(
+              'Source:',
+              '${details.sourceName} (${details.sourceCode})',
+            ),
 
-            _buildDetailRow('Source:', '${details.sourceName} (${details.sourceCode})'),
-     
-            _buildDetailRow('Destination:', '${details.destName} (${details.destCode})'),
-            
+            _buildDetailRow(
+              'Destination:',
+              '${details.destName} (${details.destCode})',
+            ),
 
             _buildDetailRow('Departure:', details.departureTime),
             _buildDetailRow('Arrival:', details.arrivalTime),
             _buildDetailRow('Travel Time:', details.travelTime),
             _buildDetailRow('Running Days:', runningDaysFormatted),
-  
-
           ],
         ),
       ),
     );
   }
+
   Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: AppTheme.label.copyWith(fontSize: 16)),
           const SizedBox(width: 10),
-          Text(value, style: AppTheme.body),
+          Flexible(
+            child: Text(
+              value,
+              style: AppTheme.body,
+              softWrap: true,
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );
   }
-
 
   Widget _buildScheduleTable(List<TrainRoute> route) {
     return Column(
