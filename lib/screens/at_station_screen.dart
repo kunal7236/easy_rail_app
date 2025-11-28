@@ -23,69 +23,66 @@ class _AtStationScreenState extends State<AtStationScreen> {
 
   void _search() {
     FocusScope.of(context).unfocus();
-    context.read<AtStationProvider>().fetchTrainsAtStation(_stationController.text);
+    context.read<AtStationProvider>().fetchTrainsAtStation(
+      _stationController.text,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AtStationProvider>();
 
-    return Column(
+    return ListView(
+      padding: const EdgeInsets.all(16.0),
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
+        Text(
+          'Station Live',
+          style: AppTheme.heading,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+
+        // This is your '.search-container'
+        Container(
+          padding: const EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: const Color(0xFFCCE5EB), // from .search-container
+            borderRadius: BorderRadius.circular(10.0),
+            border: Border.all(color: AppTheme.accentDark, width: 2.0),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black45,
+                blurRadius: 15,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Station Live', style: AppTheme.heading, textAlign: TextAlign.center),
+              Text('Enter Station Code', style: AppTheme.label),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _stationController,
+                decoration: const InputDecoration(hintText: 'Ex: NDLS or HWH'),
+                textCapitalization: TextCapitalization.characters,
+              ),
               const SizedBox(height: 20),
-              
-              // This is your '.search-container'
-              Container(
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCCE5EB), // from .search-container
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: AppTheme.accentDark, width: 2.0),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black45,
-                      blurRadius: 15,
-      
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Enter Station Code', style: AppTheme.label),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _stationController,
-                      decoration: const InputDecoration(
-                        hintText: 'Ex: NDLS or HWH',
-                      ),
-                      textCapitalization: TextCapitalization.characters,
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _search,
-                        child: const Text('Search'),
-                      ),
-                    ),
-                  ],
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _search,
+                  child: const Text('Search'),
                 ),
               ),
             ],
           ),
         ),
-        
+
+        const SizedBox(height: 20),
+
         // This is your '#trainStationContainer'
-        Expanded(
-          child: _buildResultsArea(provider),
-        ),
+        _buildResultsArea(provider),
       ],
     );
   }
@@ -107,19 +104,18 @@ class _AtStationScreenState extends State<AtStationScreen> {
     }
 
     if (provider.trains.isEmpty) {
-      return Center(
-        child: Text('Enter a station code to see live arrivals/departures.', style: AppTheme.body),
+      return Text(
+        'Enter a station code to see live arrivals/departures.',
+        style: AppTheme.body,
+        textAlign: TextAlign.center,
       );
     }
 
     // Results Found
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      itemCount: provider.trains.length,
-      itemBuilder: (context, index) {
-        final train = provider.trains[index];
+    return Column(
+      children: provider.trains.map((train) {
         return StationTrainCard(train: train);
-      },
+      }).toList(),
     );
   }
 }
