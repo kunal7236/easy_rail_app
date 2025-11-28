@@ -154,7 +154,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               decoration: InputDecoration(
                 hintText: hint,
                 prefixIcon: Icon(
-                  isFrom ? Icons.departure_board : Icons.pin_drop,
+                  isFrom ? Icons.trip_origin : Icons.location_on,
+                  color: isFrom ? Colors.green : Colors.red,
                 ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
