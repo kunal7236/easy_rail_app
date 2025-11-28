@@ -93,6 +93,7 @@ class MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFCCE5EB),
       appBar: const AppHeader(),
 
       // The main content area

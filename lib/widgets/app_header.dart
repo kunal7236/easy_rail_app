@@ -30,7 +30,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(
-            Icons.code_rounded, // A good substitute for the  logo
+            Icons.contact_support, // A good substitute for the  logo
             color: AppTheme.textPrimary,
             size: 30.0, // Close to your 40px SVG size
           ),
