@@ -110,16 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // Search Button
                 SizedBox(
-                  width: 150,
+                  width: double.infinity,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(
-                        0xFF01FFD5,
-                      ), // Your hover color
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                    ),
                     onPressed: () {
                       context.read<HomeProvider>().searchTrains();
                     },
