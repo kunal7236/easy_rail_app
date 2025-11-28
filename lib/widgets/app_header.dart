@@ -16,12 +16,13 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      toolbarHeight: 70.0,
+      toolbarHeight: 50.0,
 
       // Makes the AppBar match the scaffold background
       backgroundColor: AppTheme.background,
       elevation: 0,
       scrolledUnderElevation: 0,
+      titleSpacing: 16.0,
       title: const Text(
         'Easy Rail',
         style: AppTheme.logo, // Uses the 'Lemonada' font
@@ -32,17 +33,17 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
           icon: const Icon(
             Icons.contact_support, // A good substitute for the  logo
             color: AppTheme.textPrimary,
-            size: 30.0, // Close to your 40px SVG size
+            size: 24.0,
           ),
           tooltip: 'Original Repository', // From your <a> tag title
           onPressed: _launch,
         ),
         // Provides the 20px right padding from your CSS
-        const SizedBox(width: 20),
+        const SizedBox(width: 12),
       ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(70.0);
+  Size get preferredSize => const Size.fromHeight(50.0);
 }
