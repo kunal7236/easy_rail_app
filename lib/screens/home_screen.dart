@@ -42,6 +42,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
+        Text(
+          'Search Trains',
+          style: AppTheme.heading,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+
         // This is your '.main-box'
         Container(
           padding: const EdgeInsets.all(20.0),
@@ -61,9 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(0.0),
             child: Column(
               children: [
-                Text('Search Trains', style: AppTheme.heading),
-                const SizedBox(height: 20),
-
                 // 'From' and 'To' inputs with Swap icon
                 Column(
                   children: [
