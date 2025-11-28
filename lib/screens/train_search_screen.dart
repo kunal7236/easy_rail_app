@@ -215,7 +215,7 @@ class _TrainSearchScreenState extends State<TrainSearchScreen> {
         }
       }
       runningDaysFormatted = runningDaysList.isNotEmpty
-          ? runningDaysList.join(', ')
+          ? runningDaysList.join(' ')
           : 'Not available';
     } else {
       runningDaysFormatted = 'N/A'; // Fallback
