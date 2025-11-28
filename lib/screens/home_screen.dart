@@ -38,79 +38,90 @@ class _HomeScreenState extends State<HomeScreen> {
     if (provider.toStation != null && _toController.text.isEmpty) {
       _toController.text = provider.toStation.toString();
     }
-    
+
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
         // This is your '.main-box'
-        Container(
-          padding: const EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: AppTheme.accent,
+        Card(
+          elevation: 2.0,
+          color: const Color(0xFFCCE5EB),
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(17.0),
-            border: Border.all(color: AppTheme.accentDark, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: AppTheme.accentDark,
-                blurRadius: 0,
-                offset: Offset(2, 2),
-              ),
-            ],
+            side: const BorderSide(color: AppTheme.accentDark, width: 2.0),
           ),
-          child: Column(
-            children: [
-              Text('Search Trains', style: AppTheme.heading),
-              const SizedBox(height: 20),
-              
-              // 'From' and 'To' inputs with Swap icon
-              Column(
-                children: [
-                  _buildStationAutocomplete(context, "From", _fromController, true),
-                  
-                  // Swap Icon
-                  IconButton(
-                    icon: const Icon(Icons.swap_vert, color: AppTheme.accentDark),
-                    onPressed: () {
-                      // Swap logic
-                      context.read<HomeProvider>().swapStations();
-                      // Manually swap controller text
-                      final tempText = _fromController.text;
-                      _fromController.text = _toController.text;
-                      _toController.text = tempText;
-                    },
-                  ),
-                  
-                  _buildStationAutocomplete(context, "To", _toController, false),
-                ],
-              ),
-              const SizedBox(height: 10),
-              
-              // Date Picker
-              _buildDatePicker(context),
-              const SizedBox(height: 20),
-              
-              // Search Button
-              SizedBox(
-                width: 150,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF01FFD5), // Your hover color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0)
-                    )
-                  ),
-                  onPressed: () {
-                    context.read<HomeProvider>().searchTrains();
-                  },
-                  child: const Text('Search'),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Text('Search Trains', style: AppTheme.heading),
+                const SizedBox(height: 20),
+
+                // 'From' and 'To' inputs with Swap icon
+                Column(
+                  children: [
+                    _buildStationAutocomplete(
+                      context,
+                      "From",
+                      _fromController,
+                      true,
+                    ),
+
+                    // Swap Icon
+                    IconButton(
+                      icon: const Icon(
+                        Icons.swap_vert,
+                        color: AppTheme.accentDark,
+                      ),
+                      onPressed: () {
+                        // Swap logic
+                        context.read<HomeProvider>().swapStations();
+                        // Manually swap controller text
+                        final tempText = _fromController.text;
+                        _fromController.text = _toController.text;
+                        _toController.text = tempText;
+                      },
+                    ),
+
+                    _buildStationAutocomplete(
+                      context,
+                      "To",
+                      _toController,
+                      false,
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+
+                // Date Picker
+                _buildDatePicker(context),
+                const SizedBox(height: 20),
+
+                // Search Button
+                SizedBox(
+                  width: 150,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(
+                        0xFF01FFD5,
+                      ), // Your hover color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      context.read<HomeProvider>().searchTrains();
+                    },
+                    child: const Text('Search'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // This is your '#train-results'
         _buildResultsArea(provider),
       ],
@@ -118,7 +129,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Builds the Autocomplete widget for 'From' and 'To'
-  Widget _buildStationAutocomplete(BuildContext context, String label, TextEditingController controller, bool isFrom) {
+  Widget _buildStationAutocomplete(
+    BuildContext context,
+    String label,
+    TextEditingController controller,
+    bool isFrom,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -127,7 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Autocomplete<Station>(
           displayStringForOption: (Station option) => option.toString(),
           optionsBuilder: (TextEditingValue textEditingValue) {
-            return context.read<HomeProvider>().searchStations(textEditingValue.text);
+            return context.read<HomeProvider>().searchStations(
+              textEditingValue.text,
+            );
           },
           onSelected: (Station selection) {
             if (isFrom) {
@@ -137,21 +155,23 @@ class _HomeScreenState extends State<HomeScreen> {
             }
             controller.text = selection.toString(); // Update controller
           },
-          fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-            // Assign the external controller
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (controller.text.isNotEmpty && textEditingController.text.isEmpty) {
-                textEditingController.text = controller.text;
-              }
-            });
-            return TextField(
-              controller: textEditingController,
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                hintText: label == 'From' ? 'New Delhi' : 'Mumbai',
-              ),
-            );
-          },
+          fieldViewBuilder:
+              (context, textEditingController, focusNode, onFieldSubmitted) {
+                // Assign the external controller
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (controller.text.isNotEmpty &&
+                      textEditingController.text.isEmpty) {
+                    textEditingController.text = controller.text;
+                  }
+                });
+                return TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    hintText: label == 'From' ? 'New Delhi' : 'Mumbai',
+                  ),
+                );
+              },
           optionsViewBuilder: (context, onSelected, options) {
             return Align(
               alignment: Alignment.topLeft,
@@ -168,9 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           onSelected(option);
                         },
-                        child: ListTile(
-                          title: Text(option.toString()),
-                        ),
+                        child: ListTile(title: Text(option.toString())),
                       );
                     },
                   ),
@@ -186,7 +204,9 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Builds the custom Date Picker input
   Widget _buildDatePicker(BuildContext context) {
     final provider = context.read<HomeProvider>();
-    String formattedDate = DateFormat('yyyy-MM-dd').format(provider.selectedDate);
+    String formattedDate = DateFormat(
+      'yyyy-MM-dd',
+    ).format(provider.selectedDate);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +236,10 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(formattedDate, style: AppTheme.body.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  formattedDate,
+                  style: AppTheme.body.copyWith(fontWeight: FontWeight.w600),
+                ),
                 const Icon(Icons.calendar_today, color: AppTheme.accentDark),
               ],
             ),
@@ -258,7 +281,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ListView.builder(
           itemCount: provider.trains.length,
           shrinkWrap: true, // Important inside a SingleChildScrollView
-          physics: const NeverScrollableScrollPhysics(), // Let the outer list scroll
+          physics:
+              const NeverScrollableScrollPhysics(), // Let the outer list scroll
           itemBuilder: (context, index) {
             final train = provider.trains[index];
             return TrainCard(train: train);

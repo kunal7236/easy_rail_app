@@ -17,10 +17,10 @@ class LiveStatusScreen extends StatefulWidget {
 class _LiveStatusScreenState extends State<LiveStatusScreen> {
   final TextEditingController _trainController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  
+
   // Controller for the scrollable list
   final ItemScrollController _scrollController = ItemScrollController();
-  
+
   @override
   void dispose() {
     _trainController.dispose();
@@ -61,9 +61,9 @@ class _LiveStatusScreenState extends State<LiveStatusScreen> {
     // Use Consumer to easily rebuild when provider changes
     return Consumer<LiveStatusProvider>(
       builder: (context, provider, child) {
-        
         // This is the logic to scroll to the item after the build
-        if (provider.stations.isNotEmpty && provider.currentStationIndex != -1) {
+        if (provider.stations.isNotEmpty &&
+            provider.currentStationIndex != -1) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (_scrollController.isAttached) {
               _scrollController.scrollTo(
@@ -80,13 +80,17 @@ class _LiveStatusScreenState extends State<LiveStatusScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Text('Train Running Status', style: AppTheme.heading, textAlign: TextAlign.center),
+              Text(
+                'Train Running Status',
+                style: AppTheme.heading,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 20),
-              
+
               // Search Form
               _buildSearchForm(context),
               const SizedBox(height: 20),
-              
+
               // Results Area
               _buildResultsArea(provider),
             ],
@@ -99,88 +103,103 @@ class _LiveStatusScreenState extends State<LiveStatusScreen> {
   Widget _buildSearchForm(BuildContext context) {
     String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
 
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: AppTheme.accent,
+    return Card(
+      elevation: 2.0,
+      color: const Color(0xFFCCE5EB),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(color: AppTheme.accentDark, width: 2.0),
+        side: const BorderSide(color: AppTheme.accentDark, width: 2.0),
       ),
-      child: Column(
-        children: [
-          TextField(
-            controller: _trainController,
-            decoration: const InputDecoration(
-              labelText: 'Train Number',
-              hintText: 'Ex: 12345',
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
-          InkWell(
-            onTap: () => _selectDate(context),
-            child: Container(
-              height: 60,
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AppTheme.accentDark, width: 2.0),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _trainController,
+              decoration: const InputDecoration(
+                labelText: 'Train Number',
+                hintText: 'Ex: 12345',
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(formattedDate, style: AppTheme.body.copyWith(fontWeight: FontWeight.w600)),
-                  const Icon(Icons.calendar_today, color: AppTheme.accentDark),
-                ],
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            InkWell(
+              onTap: () => _selectDate(context),
+              child: Container(
+                height: 60,
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(color: AppTheme.accentDark, width: 2.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      formattedDate,
+                      style: AppTheme.body.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.calendar_today,
+                      color: AppTheme.accentDark,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _searchStatus,
-              child: const Text('Check Status'),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _searchStatus,
+                child: const Text('Check Status'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildResultsArea(LiveStatusProvider provider) {
     if (provider.isLoading && provider.stations.isEmpty) {
-      return const Expanded(
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const Expanded(child: Center(child: CircularProgressIndicator()));
     }
 
     if (provider.error != null) {
-      return Expanded(
-        child: Center(
-          child: Text(
-            provider.error!,
-            style: const TextStyle(color: AppTheme.accentRed, fontSize: 16),
-            textAlign: TextAlign.center,
-          ),
-        ),
+      return Text(
+        provider.error!,
+        style: const TextStyle(color: AppTheme.accentRed, fontSize: 16),
+        textAlign: TextAlign.center,
       );
     }
 
     if (provider.stations.isEmpty) {
-      return Expanded(
-        child: Center(
-          child: Text('Enter a train number to get live status.', style: AppTheme.body),
-        ),
+      return Text(
+        'Enter a train number to get live status.',
+        style: AppTheme.body,
+        textAlign: TextAlign.center,
       );
     }
 
     // Results Found
     final stations = provider.stations;
     final currentStation = stations.firstWhere(
-        (s) => s.isCurrent,
-        orElse: () => stations.isNotEmpty ? stations.first : LiveStationStatus(index: -1, stationName: 'N/A', arrivalTime: '', departureTime: '', delay: '', status: '', isCurrent: false) // Dummy object if not found
+      (s) => s.isCurrent,
+      orElse: () => stations.isNotEmpty
+          ? stations.first
+          : LiveStationStatus(
+              index: -1,
+              stationName: 'N/A',
+              arrivalTime: '',
+              departureTime: '',
+              delay: '',
+              status: '',
+              isCurrent: false,
+            ), // Dummy object if not found
     );
     return Expanded(
       child: Column(
@@ -188,13 +207,16 @@ class _LiveStatusScreenState extends State<LiveStatusScreen> {
           // Header with train info
           Text(
             "Train Number: ${_trainController.text}",
-            style: AppTheme.body.copyWith(fontSize: 20, fontWeight: FontWeight.bold),
+            style: AppTheme.body.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             'Current: ${currentStation.stationName}',
             style: AppTheme.body.copyWith(fontSize: 16),
           ),
- 
+
           const SizedBox(height: 10),
 
           // The Timeline List

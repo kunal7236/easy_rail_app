@@ -62,6 +62,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         // This is your '.booking-container'
         Card(
           elevation: 2.0,
+          color: const Color(0xFFCCE5EB),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
           ),
