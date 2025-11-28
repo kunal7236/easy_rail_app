@@ -42,6 +42,13 @@ class AvailabilityProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void swapStations() {
+    final temp = _fromStation;
+    _fromStation = _toStation;
+    _toStation = temp;
+    notifyListeners();
+  }
+
   /// Service passthrough for Autocomplete widget
   Future<List<Station>> searchStations(String query) {
     return _localDataService.searchStations(query);
@@ -63,21 +70,21 @@ class AvailabilityProvider with ChangeNotifier {
     try {
       // Format date as DD-MM-YYYY
       final String doj = DateFormat('dd-MM-yyyy').format(_selectedDate);
-      
+
       // THIS IS THE NEW, WORKING API URL FROM YOUR NETWORK LOG
       final url = Uri.parse(
-          '${KApi.confirmTktBaseUrl}/api/v1/trains/search?sourceStationCode=${_fromStation!.code}&destinationStationCode=${_toStation!.code}&dateOfJourney=$doj&addAvailabilityCache=true&enableNearby=true&enableTG=true');
-      
+        '${KApi.confirmTktBaseUrl}/api/v1/trains/search?sourceStationCode=${_fromStation!.code}&destinationStationCode=${_toStation!.code}&dateOfJourney=$doj&addAvailabilityCache=true&enableNearby=true&enableTG=true',
+      );
+
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        
+
         // THIS IS THE NEW PARSING LOGIC
         if (data['data'] != null && data['data']['trainList'] != null) {
-          
           var trainListJson = data['data']['trainList'] as List;
-          
+
           _trains = trainListJson
               .map((trainJson) => TrainAvailability.fromJson(trainJson))
               .toList();

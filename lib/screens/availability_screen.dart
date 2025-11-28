@@ -59,12 +59,19 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
+        Text(
+          'Check Availability',
+          style: AppTheme.heading,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+
         // This is your '.booking-container'
         Container(
           padding: const EdgeInsets.all(20.0),
           decoration: BoxDecoration(
             color: const Color(0xFFCCE5EB),
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(17.0),
             border: Border.all(color: AppTheme.accentDark, width: 2.0),
             boxShadow: const [
               BoxShadow(
@@ -74,47 +81,38 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: Column(
-              children: [
-                _buildStationAutocomplete(
-                  context,
-                  "From Station",
-                  _fromController,
-                  true,
+          child: Column(
+            children: [
+              _buildStationAutocomplete(context, "From", _fromController, true),
+
+              // Swap Icon
+              IconButton(
+                icon: const Icon(Icons.swap_vert, color: AppTheme.accentDark),
+                onPressed: () {
+                  context.read<AvailabilityProvider>().swapStations();
+                  final temp = _fromController.text;
+                  _fromController.text = _toController.text;
+                  _toController.text = temp;
+                },
+              ),
+
+              _buildStationAutocomplete(context, "To", _toController, false),
+
+              const SizedBox(height: 20),
+              _buildDatePicker(context),
+              const SizedBox(height: 20),
+              _buildQuickDateButtons(context, isSelected),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<AvailabilityProvider>().fetchAvailability();
+                  },
+                  child: const Text('Get Availability'),
                 ),
-                const Divider(height: 20),
-                _buildStationAutocomplete(
-                  context,
-                  "To Station",
-                  _toController,
-                  false,
-                ),
-                const Divider(height: 20),
-                _buildDatePicker(context, isSelected),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(
-                        0xFF4D9DDA,
-                      ), // .search-button color
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(16.0),
-                    ),
-                    onPressed: () {
-                      context.read<AvailabilityProvider>().fetchAvailability();
-                    },
-                    child: const Text(
-                      'Get Availability',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
 
@@ -126,145 +124,152 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
     );
   }
 
-  /// Builds the Autocomplete widget (similar to home_screen)
+  /// Builds the Autocomplete widget (same as home_screen)
   Widget _buildStationAutocomplete(
     BuildContext context,
-    String hint,
+    String label,
     TextEditingController controller,
     bool isFrom,
   ) {
-    return Autocomplete<Station>(
-      displayStringForOption: (Station option) => option.toString(),
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        return context.read<AvailabilityProvider>().searchStations(
-          textEditingValue.text,
-        );
-      },
-      onSelected: (Station selection) {
-        if (isFrom) {
-          context.read<AvailabilityProvider>().setFromStation(selection);
-        } else {
-          context.read<AvailabilityProvider>().setToStation(selection);
-        }
-        controller.text = selection.toString();
-      },
-      fieldViewBuilder:
-          (context, textEditingController, focusNode, onFieldSubmitted) {
-            // Assign the external controller
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (controller.text.isNotEmpty &&
-                  textEditingController.text.isEmpty) {
-                textEditingController.text = controller.text;
-              }
-            });
-            return TextField(
-              controller: textEditingController,
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                hintText: hint,
-                prefixIcon: Icon(
-                  isFrom ? Icons.trip_origin : Icons.location_on,
-                  color: isFrom ? Colors.green : Colors.red,
-                ),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-              ),
-              style: AppTheme.body.copyWith(fontWeight: FontWeight.w500),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTheme.label),
+        const SizedBox(height: 8),
+        Autocomplete<Station>(
+          displayStringForOption: (Station option) => option.toString(),
+          optionsBuilder: (TextEditingValue textEditingValue) {
+            return context.read<AvailabilityProvider>().searchStations(
+              textEditingValue.text,
             );
           },
-      optionsViewBuilder: (context, onSelected, options) {
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            elevation: 4.0,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 200),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: options.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final Station option = options.elementAt(index);
-                  return InkWell(
-                    onTap: () {
-                      onSelected(option);
+          onSelected: (Station selection) {
+            if (isFrom) {
+              context.read<AvailabilityProvider>().setFromStation(selection);
+            } else {
+              context.read<AvailabilityProvider>().setToStation(selection);
+            }
+            controller.text = selection.toString();
+          },
+          fieldViewBuilder:
+              (context, textEditingController, focusNode, onFieldSubmitted) {
+                // Assign the external controller
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (controller.text.isNotEmpty &&
+                      textEditingController.text.isEmpty) {
+                    textEditingController.text = controller.text;
+                  }
+                });
+                return TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    hintText: label == 'From' ? 'New Delhi' : 'Mumbai',
+                  ),
+                );
+              },
+          optionsViewBuilder: (context, onSelected, options) {
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4.0,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: options.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final Station option = options.elementAt(index);
+                      return InkWell(
+                        onTap: () {
+                          onSelected(option);
+                        },
+                        child: ListTile(title: Text(option.toString())),
+                      );
                     },
-                    child: ListTile(title: Text(option.toString())),
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ],
     );
   }
 
-  /// Builds the custom Date Picker with tabs
-  Widget _buildDatePicker(BuildContext context, List<bool> isSelected) {
+  /// Builds the custom Date Picker (same as home_screen)
+  Widget _buildDatePicker(BuildContext context) {
     final provider = context.read<AvailabilityProvider>();
     String formattedDate = DateFormat(
-      'dd-MM-yyyy',
+      'yyyy-MM-dd',
     ).format(provider.selectedDate);
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text('Journey Date', style: AppTheme.label),
+        const SizedBox(height: 8),
         InkWell(
           onTap: () async {
             final DateTime? picked = await showDatePicker(
               context: context,
               initialDate: provider.selectedDate,
-              firstDate: today,
-              lastDate: today.add(const Duration(days: 120)),
+              firstDate: DateTime.now().subtract(const Duration(days: 1)),
+              lastDate: DateTime.now().add(const Duration(days: 120)),
             );
             if (picked != null && picked != provider.selectedDate) {
-              _updateDate(picked);
+              provider.setSelectedDate(picked);
             }
           },
           child: Container(
-            height: 50,
+            height: 60,
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: AppTheme.accentDark, width: 2.0),
+            ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.calendar_today, color: AppTheme.accentDark),
-                const SizedBox(width: 15),
                 Text(
                   formattedDate,
-                  style: AppTheme.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: AppTheme.body.copyWith(fontWeight: FontWeight.w600),
                 ),
+                const Icon(Icons.calendar_today, color: AppTheme.accentDark),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        ToggleButtons(
-          isSelected: isSelected,
-          onPressed: (int index) {
-            if (index == 0) _updateDate(today);
-            if (index == 1) _updateDate(today.add(const Duration(days: 1)));
-            if (index == 2) _updateDate(today.add(const Duration(days: 2)));
-          },
-          borderRadius: BorderRadius.circular(4.0),
-          children: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Today'),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Tomorrow'),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Day After'),
-            ),
-          ],
+      ],
+    );
+  }
+
+  /// Builds the quick date selection buttons (Today, Tomorrow, Day After)
+  Widget _buildQuickDateButtons(BuildContext context, List<bool> isSelected) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    return ToggleButtons(
+      isSelected: isSelected,
+      onPressed: (int index) {
+        if (index == 0) _updateDate(today);
+        if (index == 1) _updateDate(today.add(const Duration(days: 1)));
+        if (index == 2) _updateDate(today.add(const Duration(days: 2)));
+      },
+      borderRadius: BorderRadius.circular(4.0),
+      children: const [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text('Today'),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text('Tomorrow'),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text('Day After'),
         ),
       ],
     );
