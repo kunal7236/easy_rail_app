@@ -28,7 +28,21 @@ class TrainSearchProvider with ChangeNotifier {
     _selectedTrain = train;
   }
 
-
+  /// Search and fetch train details by train number
+  Future<void> searchByTrainNumber(String trainNumber) async {
+    final results = await _localDataService.searchTrains(trainNumber);
+    if (results.isNotEmpty) {
+      // Find exact match or first result
+      final exactMatch = results.firstWhere(
+        (train) => train.number == trainNumber,
+        orElse: () => results.first,
+      );
+      _selectedTrain = exactMatch;
+      notifyListeners();
+      // Auto-fetch details
+      await fetchTrainDetails();
+    }
+  }
 
   /// Service passthrough for Autocomplete widget
   Future<List<TrainSuggestion>> searchTrains(String query) {

@@ -57,10 +57,10 @@ class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
   @override
-  State<MainNavigation> createState() => _MainNavigationState();
+  State<MainNavigation> createState() => MainNavigationState();
 }
 
-class _MainNavigationState extends State<MainNavigation> {
+class MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0; // Default to Home
 
   final List<Widget> _screens = [
@@ -73,6 +73,18 @@ class _MainNavigationState extends State<MainNavigation> {
   ];
 
   void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  // Access MainNavigation state from child widgets
+  static MainNavigationState? of(BuildContext context) {
+    return context.findAncestorStateOfType<MainNavigationState>();
+  }
+
+  // Switch to specific tab
+  void switchToTab(int index) {
     setState(() {
       _currentIndex = index;
     });

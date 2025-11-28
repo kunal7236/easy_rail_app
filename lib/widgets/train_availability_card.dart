@@ -5,7 +5,13 @@ import 'seat_availability_chip.dart';
 
 class TrainAvailabilityCard extends StatelessWidget {
   final TrainAvailability train;
-  const TrainAvailabilityCard({super.key, required this.train});
+  final VoidCallback? onScheduleTap;
+
+  const TrainAvailabilityCard({
+    super.key,
+    required this.train,
+    this.onScheduleTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +85,7 @@ class TrainAvailabilityCard extends StatelessWidget {
                 ),
                 // .train-sche-link
                 TextButton(
-                  onPressed: () {},
+                  onPressed: onScheduleTap,
                   child: Text(
                     'Schedule',
                     style: AppTheme.body.copyWith(

@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../models/station.dart';
 import '../providers/availability_provider.dart';
+import '../providers/train_search_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/train_availability_card.dart';
+import '../main.dart';
 
 class AvailabilityScreen extends StatefulWidget {
   const AvailabilityScreen({super.key});
@@ -29,10 +31,19 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
     context.read<AvailabilityProvider>().setSelectedDate(newDate);
   }
 
+  void _handleScheduleTap(String trainNumber) {
+    // Switch to Train Search tab and search
+    final mainNav = MainNavigationState.of(context);
+    final trainSearchProvider = context.read<TrainSearchProvider>();
+
+    mainNav?.switchToTab(2);
+    trainSearchProvider.searchByTrainNumber(trainNumber);
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AvailabilityProvider>();
-    
+
     // Determine which date tab is active
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -51,14 +62,26 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         // This is your '.booking-container'
         Card(
           elevation: 2.0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                _buildStationAutocomplete(context, "From Station", _fromController, true),
+                _buildStationAutocomplete(
+                  context,
+                  "From Station",
+                  _fromController,
+                  true,
+                ),
                 const Divider(height: 20),
-                _buildStationAutocomplete(context, "To Station", _toController, false),
+                _buildStationAutocomplete(
+                  context,
+                  "To Station",
+                  _toController,
+                  false,
+                ),
                 const Divider(height: 20),
                 _buildDatePicker(context, isSelected),
                 const SizedBox(height: 20),
@@ -66,23 +89,28 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4D9DDA), // .search-button color
+                      backgroundColor: const Color(
+                        0xFF4D9DDA,
+                      ), // .search-button color
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.all(16.0),
                     ),
                     onPressed: () {
                       context.read<AvailabilityProvider>().fetchAvailability();
                     },
-                    child: const Text('Get Availability', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Get Availability',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // This is your '.aval-container'
         _buildResultsArea(provider),
       ],
@@ -90,11 +118,18 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   }
 
   /// Builds the Autocomplete widget (similar to home_screen)
-  Widget _buildStationAutocomplete(BuildContext context, String hint, TextEditingController controller, bool isFrom) {
+  Widget _buildStationAutocomplete(
+    BuildContext context,
+    String hint,
+    TextEditingController controller,
+    bool isFrom,
+  ) {
     return Autocomplete<Station>(
       displayStringForOption: (Station option) => option.toString(),
       optionsBuilder: (TextEditingValue textEditingValue) {
-        return context.read<AvailabilityProvider>().searchStations(textEditingValue.text);
+        return context.read<AvailabilityProvider>().searchStations(
+          textEditingValue.text,
+        );
       },
       onSelected: (Station selection) {
         if (isFrom) {
@@ -104,26 +139,30 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         }
         controller.text = selection.toString();
       },
-      fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-        // Assign the external controller
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (controller.text.isNotEmpty && textEditingController.text.isEmpty) {
-            textEditingController.text = controller.text;
-          }
-        });
-        return TextField(
-          controller: textEditingController,
-          focusNode: focusNode,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(isFrom ? Icons.departure_board : Icons.pin_drop),
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-          ),
-          style: AppTheme.body.copyWith(fontWeight: FontWeight.w500),
-        );
-      },
+      fieldViewBuilder:
+          (context, textEditingController, focusNode, onFieldSubmitted) {
+            // Assign the external controller
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (controller.text.isNotEmpty &&
+                  textEditingController.text.isEmpty) {
+                textEditingController.text = controller.text;
+              }
+            });
+            return TextField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                hintText: hint,
+                prefixIcon: Icon(
+                  isFrom ? Icons.departure_board : Icons.pin_drop,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+              style: AppTheme.body.copyWith(fontWeight: FontWeight.w500),
+            );
+          },
       optionsViewBuilder: (context, onSelected, options) {
         return Align(
           alignment: Alignment.topLeft,
@@ -140,9 +179,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                     onTap: () {
                       onSelected(option);
                     },
-                    child: ListTile(
-                      title: Text(option.toString()),
-                    ),
+                    child: ListTile(title: Text(option.toString())),
                   );
                 },
               ),
@@ -156,11 +193,13 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   /// Builds the custom Date Picker with tabs
   Widget _buildDatePicker(BuildContext context, List<bool> isSelected) {
     final provider = context.read<AvailabilityProvider>();
-    String formattedDate = DateFormat('dd-MM-yyyy').format(provider.selectedDate);
+    String formattedDate = DateFormat(
+      'dd-MM-yyyy',
+    ).format(provider.selectedDate);
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     return Column(
       children: [
         InkWell(
@@ -182,7 +221,13 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               children: [
                 const Icon(Icons.calendar_today, color: AppTheme.accentDark),
                 const SizedBox(width: 15),
-                Text(formattedDate, style: AppTheme.body.copyWith(fontWeight: FontWeight.w600, fontSize: 16)),
+                Text(
+                  formattedDate,
+                  style: AppTheme.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
               ],
             ),
           ),
@@ -197,9 +242,18 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
           },
           borderRadius: BorderRadius.circular(4.0),
           children: const [
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16.0), child: Text('Today')),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16.0), child: Text('Tomorrow')),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16.0), child: Text('Day After')),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('Today'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('Tomorrow'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('Day After'),
+            ),
           ],
         ),
       ],
@@ -224,7 +278,10 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
 
     if (provider.trains.isEmpty) {
       return Center(
-        child: Text('Search for availability to see results.', style: AppTheme.body),
+        child: Text(
+          'Search for availability to see results.',
+          style: AppTheme.body,
+        ),
       );
     }
 
@@ -235,7 +292,10 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         final train = provider.trains[index];
-        return TrainAvailabilityCard(train: train);
+        return TrainAvailabilityCard(
+          train: train,
+          onScheduleTap: () => _handleScheduleTap(train.trainNumber),
+        );
       },
     );
   }
