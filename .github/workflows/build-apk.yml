@@ -33,6 +33,10 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Create .env file
+        run: |
+          echo "RAPID_API_KEY='${{ secrets.RAPID_API_KEY }}'" > .env
+
       - name: Build split APKs
         run: flutter build apk --split-per-abi --release
 
