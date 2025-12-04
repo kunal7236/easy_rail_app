@@ -4,6 +4,30 @@ A comprehensive Indian Railways information app built with Flutter. Easy Rail pr
 
 > **Inspired by:** [Easy-Rail](https://github.com/RAJIV81205/Easy-Rail) - A web-based railway information system
 
+## 📹 Demo
+
+<div align="center">
+  <a href="https://youtube.com/shorts/q-T9eZis8eU">
+    <img src="https://img.youtube.com/vi/q-T9eZis8eU/maxresdefault.jpg" alt="Watch Demo" width="500"/>
+  </a>
+</div>
+
+## 📸 Screenshots
+
+<div align="center">
+  <img src="screenshots/Home_screen.jpeg" alt="Home Screen" width="200"/>
+  <img src="screenshots/Train_search_screen_1.jpeg" alt="Train Search" width="200"/>
+  <img src="screenshots/Train_search_screen_2.jpeg" alt="Train Schedule" width="200"/>
+  <img src="screenshots/Seat_availibity_screen_1.jpeg" alt="Seat Availability" width="200"/>
+</div>
+
+<div align="center">
+  <img src="screenshots/Seat_availibity_screen_2.jpeg" alt="Availability Results" width="200"/>
+  <img src="screenshots/Pnr_status_screen.jpeg" alt="PNR Status" width="200"/>
+  <img src="screenshots/Live_station_screen.jpeg" alt="Live Status" width="200"/>
+  <img src="screenshots/At_station_screen.jpeg" alt="Station Live" width="200"/>
+</div>
+
 ## ✨ Features
 
 ### 🔍 Search Trains
